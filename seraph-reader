@@ -1,0 +1,517 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Seraph's NWN2 Log Editor</title>
+    <meta name="description" content="Seraph's NWN2 Log Editor">
+    <meta name="author" content="Seraph">
+
+    <meta property="og:title" content="Seraph's NWN2 Log Editor">
+    <meta property="og:type" content="website">
+    <meta property="og:description" content="Seraph's NWN2 Log Editor">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style type="text/css">
+        body {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 0;
+    margin: 0;
+    background-color: #1f1f1f;
+    color: #dadada;
+}
+
+#main_box {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: .5em;
+    padding-top: 3em;
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    align-items: stretch;
+    align-content: stretch;
+}
+
+h2 {
+    text-align: center;
+}
+
+#leftside_box {
+    width: 25%;
+    padding: 1em;
+    box-sizing: border-box;
+}
+
+#rightside_box {
+    width: 75%;
+    padding: .5em;
+    box-sizing: border-box;
+}
+
+#log {
+    width: 100%;
+    height: 100%;
+    resize: none;
+    overflow-y: auto;
+    color: white;
+    background-color: #040404;
+    font-size: 1em;
+    font-family: monospace;
+    outline: none;
+}
+
+#import_box {
+    width: 100%;
+    margin-bottom: 1em;
+}
+
+.option_box {
+    display: flex;
+    justify-content: flex-start;
+    align-items: baseline;
+    margin: .5em 0em;
+}
+
+.option_box_mono {
+    flex-direction: row;
+}
+
+.option_input {
+    margin-right: .5em;
+}
+
+#cb_shout, #cb_talk, #cb_whisper, #cb_tell, #cb_dialog {
+    margin-left: 1.5em;
+}
+
+#buttons_box {
+    margin-top: 2em;
+}
+
+.option_label {
+    font-size: 1em;
+}
+.option_detail, #buttons_box span {
+    font-size: .8em;
+}
+
+#buttons_box > div {
+    padding: .5em;
+}
+
+#buttons_box input {
+    width: 100%;
+    font-weight: bold;
+    padding: .25em;
+    font-size: 1em;
+}
+
+.log_time {
+    color:forestgreen;
+}
+
+.log_name {
+    color: lightsalmon;
+}
+
+.log_color_force { color: white !important; }
+.log_servertell { display: none !important; }
+
+.log_tell .log_msg {color: lime;}
+.log_shout .log_msg { color: yellow;}
+    </style>
+</head>
+
+<body>
+    <h2>NWN2 Log Editor</h2>
+    <div id="main_box">
+        <div id="leftside_box">
+            <div id="import_box">
+                <input type="file" id="import" accept=".log"/>
+            </div>
+            <div id="options_box">
+                <div class="option_box option_box_mono">
+                    <div class="option_input">
+                        <input type="checkbox" id="cb_system" name="cb_system" disabled>
+                    </div>
+                    <div class="option_label">
+                        <span class="option_hideshow">Afficher</span> les messages systèmes
+                    </div>
+                </div>
+                <div class="option_box option_box_mono">
+                    <div class="option_input">
+                        <input type="checkbox" id="cb_time" name="cb_time" disabled>
+                    </div>
+                    <div class="option_label">
+                        <span class="option_hideshow">Afficher</span> l'horodatage
+                    </div>
+                </div>
+                <div class="option_box option_box_mono">
+                    <div class="option_input">
+                        <input type="checkbox" id="cb_account" name="cb_account" disabled>
+                    </div>
+                    <div class="option_label">
+                        <span class="option_hideshow">Afficher</span> le nom de compte
+                    </div>
+                </div>
+                <div class="option_box option_box_mono">
+                    <div class="option_input">
+                        <input type="checkbox" id="cb_name" name="cb_name" disabled>
+                    </div>
+                    <div class="option_label">
+                        <span class="option_hideshow">Afficher</span> le nom de joueur
+                    </div>
+                </div>
+                <div class="option_box option_box_mono">
+                    <div class="option_input">
+                        <input type="checkbox" id="cb_channel" name="cb_channel" disabled>
+                    </div>
+                    <div class="option_label">
+                        <span class="option_hideshow">Afficher</span> le canal de discussion
+                    </div>
+                </div>
+                <div class="option_box option_box_mono">
+                    <div class="option_input">
+                        <input type="checkbox" id="cb_shout" name="cb_shout" disabled>
+                    </div>
+                    <div class="option_label">
+                        <span class="option_hideshow">Afficher</span> le canal "Crier"
+                    </div>
+                </div>
+                <div class="option_box option_box_mono">
+                    <div class="option_input">
+                        <input type="checkbox" id="cb_talk" name="cb_talk" disabled>
+                    </div>
+                    <div class="option_label">
+                        <span class="option_hideshow">Afficher</span> le canal "Parler"
+                    </div>
+                </div>
+                <div class="option_box option_box_mono">
+                    <div class="option_input">
+                        <input type="checkbox" id="cb_whisper" name="cb_whisper" disabled>
+                    </div>
+                    <div class="option_label">
+                        <span class="option_hideshow">Afficher</span> le canal "Chuchoter"
+                    </div>
+                </div>
+                <div class="option_box option_box_mono">
+                    <div class="option_input">
+                        <input type="checkbox" id="cb_dialog" name="cb_dialog" disabled>
+                    </div>
+                    <div class="option_label">
+                        <span class="option_hideshow">Afficher</span> le canal "Dialogue PNJ"
+                    </div>
+                </div>
+                <div class="option_box option_box_mono">
+                    <div class="option_input">
+                        <input type="checkbox" id="cb_tell" name="cb_tell" disabled>
+                    </div>
+                    <div class="option_label">
+                        <span class="option_hideshow">Afficher</span> le canal "Message Privé"
+                    </div>
+                </div>
+                <div class="option_box option_box_mono">
+                    <div class="option_input">
+                        <input type="checkbox" id="cb_color" name="cb_color" disabled>
+                    </div>
+                    <div class="option_label">
+                        <span class="option_hideshow">Afficher</span> la coloration du texte
+                    </div>
+                </div>
+            </div>
+            <div id="buttons_box">
+                <div id="convert_box"><input type="button" id="convert" value="Convertir pour forum" disabled><span>Converti le log dans un format forum. Il n'y a plus qu'à copier/coller.</span></div>
+            </div>
+        </div>
+        <div id="rightside_box">
+            <div id="log" contenteditable="true" spellcheck="false"></div>
+        </div>
+    </div>
+    <script>
+        class LogEditor {
+    constructor () {
+        this.log = [];
+        this.fileName = "";
+    }
+
+    Activate = function ()
+    {
+        $('input').prop('disabled', false);
+        $('textarea').prop('disabled', false);
+    }
+
+    Reset = function ()
+    {
+        $('#log').html("");
+        $('input[type=checkbox]').prop("checked", false);
+    }
+
+    Load = function (file)
+    {
+        this.Reset();
+        let reader = new FileReader();
+
+        this.fileName = (file.name).split('.')[0];
+        console.log(this.fileName);
+
+        reader.onload = (function (file) {
+            this.Activate();
+            this.SetupLog(file.target.result);
+        }).bind(this);
+
+        reader.readAsText(file);
+    }
+
+    SetupLog = function(raw)
+    {
+        // Split raw text into an array on lines
+        this.log = raw.split(/\r?\n/g);
+        let line_count = this.log.length;
+
+        // For each line
+        for(let i = 0; i < line_count; i++)
+        {
+            let line = this.log[i];
+            let classes = "";
+
+            // Multiline to single line
+            let multi = 1;
+            while (i < line_count - multi)
+            {
+                const next_line = this.log[i + multi];
+                if (next_line.search(/\[\d*:\d*\]/g) != -1) break;
+                line += " " + next_line;
+                multi++;
+            }
+            multi--;
+            if (multi > 0) { // Remove useless multilines from the array and reduce the loop
+                this.log.splice(i, multi);
+                line_count -= multi;
+            }
+
+            // Detect System messages
+            if(line.search(/\[\d+:\d+\] \[Server\]/) != -1 || line.search(/\[\d+:\d+\] SERVEUR:/) != -1) classes += "log_server ";
+            if(line.search(/\[Dialog\]/) != -1) classes += "log_dialog ";
+            if(line.search(/\[Talk\]/) != -1) classes += "log_talk ";
+            if(line.search(/\[Shout\]/) != -1) classes += "log_shout ";
+            if(line.search(/\[Whisper\]/) != -1) classes += "log_whisper ";
+            if(line.search(/\[ServerTell\]/) != -1) classes += "log_servertell ";
+            if(line.search(/\[Tell\]/) != -1) classes += "log_tell ";
+
+            // Regex pattern
+            let pattern = '(\\[\\d+:\\d+\\] )'; // date 1
+            pattern += '(\\[[^\\]]*\\])?'; // account 2
+            pattern += '( *)'; // possible whitespace 3
+            pattern += '([^:]*)?'; // name 4
+            pattern += '([: ]*)?'; // possible : 5
+            pattern += '(\\[[^\\]]*\\])?'; // channel 6
+            pattern += '( *)?'; // possible whitespace 7
+            pattern += '(.*)'; // everything else 8
+            const reg = new RegExp(pattern, "g");
+
+            // HTML pattern
+            let replace = '<span class="log_time">$1</span>';
+            replace += '<span class="log_account">$2</span>';
+            replace += '$3';
+            replace += '<span class="log_name">$4</span>';
+            replace += '$5';
+            replace += '<span class="log_channel">$6</span>';
+            replace += '$7';
+            replace += '[[SPLIT]]$8'; // Add an obvious mark for easy splitting later
+
+            // Replace to format to HTML
+            line = line.replace(reg, replace);
+            line = line.split('[[SPLIT]]'); // Split the message from the rest
+
+            const header = line[0];
+
+            let message = "";
+
+            if(line.length > 1) {
+                message = line[1];
+
+                let color_tag_open = (message.match(/<c=(?:[^>]*)>/g) || []).length;
+
+                // If the message has any color tag
+                if(color_tag_open > 0)
+                {
+                    let color_tag_close = (message.match(/<\/c(?:[^>]*)>/g) || []).length;
+                    if (color_tag_close > color_tag_open) { // check and remove excessive color closing tag
+                        for(;color_tag_close > color_tag_open; color_tag_close--) 
+                        {
+                            message = message.replace(/<\/c(?:[^>]*)>/, "");
+                        }
+                    }
+
+                    // Replace NWN2 format to HTML
+                    message = message.replace(/<c=([^>]*)>/g, '<span class="log_color" style="color: $1;">');
+                    message = message.replace(/<\/c(?:[^>]*)>/g, '</span>');
+
+                    if (color_tag_open > color_tag_close) { // check and add missing color closing tag
+                        for(let j = 0; j < color_tag_open - color_tag_close; j++) 
+                        {
+                            message += '</span>';
+                        }
+                    }
+                }
+
+                this.log[i] += message;
+            }
+
+            this.log[i] = '<div class="' + classes + '">' + header + '<span class="log_msg">' + message + '</span></div>';
+        }
+
+        $('#log').html(this.log);
+    }
+
+    Filter = function(id, check)
+    {
+        switch(id)
+        {
+            case "cb_system":
+                $('.log_server').toggle(!check);
+                //$('.log_dialog').toggle(!check);
+                break;
+            case "cb_time":
+                $('.log_time').toggle(!check);
+                break; 
+            case "cb_channel":
+                $('.log_channel').toggle(!check);
+                break;
+            case "cb_name":
+                $('.log_name').toggle(!check);
+                break;
+            case "cb_account":
+                $('.log_account').toggle(!check);
+                break;
+            case "cb_shout":
+                $('.log_shout').toggle(!check);
+                break;
+            case "cb_talk":
+                $('.log_talk').toggle(!check);
+                break;
+            case "cb_whisper":
+                $('.log_whisper').toggle(!check);
+                break;
+            case "cb_dialog":
+                $('.log_dialog').toggle(!check);
+                break;
+            case "cb_tell":
+                $('.log_tell').toggle(!check);
+                break;
+            case "cb_color":
+                if(check) {
+                    $('.log_color').addClass("log_color_force");
+                } else {
+                    $('.log_color').removeClass("log_color_force");
+                }
+                break; 
+        }
+    }
+
+    Convert = function()
+    {
+        const options = {
+            system: $('.log_server').is(":visible"),
+            time: $('.log_time').is(":visible"),
+            account: $('.log_account').is(":visible"),
+            name: $('.log_name').is(":visible"),
+            channel: $('.log_channel').is(":visible"),
+            shout: $('.log_shout').is(":visible"),
+            talk: $('.log_talk').is(":visible"),
+            whisper: $('.log_whisper').is(":visible"),
+            dialog: $('.log_dialog').is(":visible"),
+            tell: $('.log_tell').is(":visible"),
+            color: $('.log_color').is(":visible")
+        };
+
+        let line_count = this.log.length;
+        let result = "";
+
+        for(let i = 0; i < line_count; i++)
+        {
+            let line = this.log[i];
+            const $line = $(line);
+
+            if (!options.shout && $line.hasClass("log_shout")) { continue; }
+            if (!options.talk && $line.hasClass("log_talk")) { continue; }
+            if (!options.whisper && $line.hasClass("log_whisper")) { continue; }
+            if (!options.dialog && $line.hasClass("log_dialog")) { continue; }
+            if (!options.tell && $line.hasClass("log_tell")) { continue; }
+            if (!options.system && $line.hasClass("log_server")) { continue; }
+
+            if (options.time)
+            {
+                if (options.color) { result += '[color=forestgreen]'; }
+                result += $line.find('.log_time').text();
+                if (options.color) { result += '[/color]'; }
+            }
+
+            if (options.account)
+            {
+                result += $line.find('.log_account').text() + " ";
+            }
+
+            if (options.name)
+            {
+                if (options.color) { result += '[color=lightsalmon]'; }
+                result += $line.find('.log_name').text();
+                if (options.color) { result += '[/color] : '; }
+            }
+
+            if (options.channel)
+            {
+                result += $line.find('.log_channel').text() + " ";
+            }
+            
+            result += $line.find('.log_msg').text();
+            result += '<br/>';
+        }
+
+        $('#log').html(result);
+    }
+
+    Init = function () {
+        let t = this;
+        $('#import').on('change', function (e) {
+            t.Load(e.target.files[0]);
+        });
+    
+        $('#export').on('click', function(e) {
+            t.Export();
+        })
+    
+        $('#convert').on('click', function(e) {
+            t.Convert();
+        });
+
+        $('input[type=checkbox]').on('change', function(e) {
+            const check = $(this).prop('checked');
+
+            $(this).parent().parent().find('.option_hideshow').text(check?"Cacher":"Afficher");
+            t.Filter($(this).attr('id'), check);
+        });
+    }
+}
+
+$(function(){
+    let Editor = new LogEditor();
+    Editor.Init();
+});
+
+    </script>
+</body>
+
+</html>
